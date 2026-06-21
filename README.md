@@ -12,9 +12,10 @@ The book names what the hiring machine does. **This toolkit helps you decide wha
 
 ## 📄 Get the toolkit
 
-👉 **[Open the RoaR Companion Toolkit →](RoaR_Companion_Toolkit.md)**
+👉 **[Download the branded PDF →](RoaR_Companion_Toolkit.pdf)**  *(print it and fill it in by hand)*
+📝 **[Or open the editable Markdown version →](RoaR_Companion_Toolkit.md)**  *(fill it in digitally)*
 
-Print it, or copy it into a doc and fill in the tables. ~20 minutes to read, then 30–45 minutes a week to run.
+~20 minutes to read, then 30–45 minutes a week to run.
 
 ---
 

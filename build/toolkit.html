@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RoaR Companion Toolkit</title>
+<style>
+  @font-face { font-family:"Inter"; src:url("fonts/Inter-Regular.ttf") format("truetype"); font-weight:400; font-style:normal; }
+  @font-face { font-family:"Inter"; src:url("fonts/Inter-Medium.ttf") format("truetype"); font-weight:500; font-style:normal; }
+  @font-face { font-family:"Inter"; src:url("fonts/Inter-SemiBold.ttf") format("truetype"); font-weight:600; font-style:normal; }
+  @font-face { font-family:"Inter"; src:url("fonts/Inter-Bold.ttf") format("truetype"); font-weight:700; font-style:normal; }
+  @font-face { font-family:"Inter"; src:url("fonts/Inter-Black.ttf") format("truetype"); font-weight:900; font-style:normal; }
+
+  :root{
+    --navy:#1f2937; --ink:#0f172a; --amber:#fbbf24; --amber-deep:#d97706;
+    --muted:#6b7280; --line:#e5e7eb; --line-strong:#d1d5db;
+    --tint:#fef9ec; --tint-line:#f3e2b3;
+  }
+
+  @page { size: Letter; margin: 15mm 16mm 16mm; }
+  @page cover { margin: 0; }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:"Inter",-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--navy); font-size:10.5pt; line-height:1.5;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* ---------- COVER ---------- */
+  .cover{
+    page:cover; break-after:page;
+    background:var(--navy); color:#fff;
+    height:279mm; width:100%; padding:26mm 22mm;
+    display:flex; flex-direction:column; justify-content:space-between;
+    position:relative;
+  }
+  .cover::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:8mm;
+    background:var(--amber);
+  }
+  .cover .top{ display:flex; align-items:center; gap:10px; }
+  .wordmark{ font-weight:900; font-size:30pt; letter-spacing:-1px; color:#fff; }
+  .wordmark b{ color:var(--amber); }
+  .kicker{ color:var(--amber); font-weight:700; font-size:11pt; letter-spacing:3px; text-transform:uppercase; }
+  .cover h1{
+    font-weight:900; font-size:40pt; line-height:1.04; letter-spacing:-1.2px;
+    margin:0 0 14px;
+  }
+  .cover .sub{ font-size:15pt; font-weight:500; color:#e5e7eb; line-height:1.35; max-width:150mm; }
+  .cover .shift{
+    border-left:4px solid var(--amber); padding:6px 0 6px 16px; margin-top:26px;
+    font-size:12.5pt; color:#fff; max-width:150mm;
+  }
+  .cover .meta{ color:#9ca3af; font-size:10.5pt; line-height:1.7; }
+  .cover .meta strong{ color:#fff; font-weight:600; }
+
+  /* ---------- TYPOGRAPHY ---------- */
+  h2.part{
+    font-weight:900; font-size:21pt; letter-spacing:-.5px; color:var(--navy);
+    margin:0 0 4px; display:flex; align-items:center; gap:12px;
+  }
+  .badge{
+    background:var(--amber); color:var(--navy); font-weight:900; font-size:14pt;
+    width:34px; height:34px; border-radius:8px; display:inline-flex;
+    align-items:center; justify-content:center; flex:0 0 auto;
+  }
+  .part-tag{ color:var(--amber-deep); font-weight:700; font-size:9.5pt; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 46px; }
+  h3{ font-weight:700; font-size:13.5pt; color:var(--ink); margin:22px 0 8px; }
+  h4{ font-weight:700; font-size:11pt; color:var(--navy); margin:16px 0 6px; }
+  p{ margin:0 0 10px; }
+  .lead{ font-size:11pt; color:#374151; }
+  a{ color:var(--amber-deep); text-decoration:none; font-weight:600; }
+  ul,ol{ margin:0 0 12px; padding-left:20px; }
+  li{ margin:0 0 5px; }
+  strong{ font-weight:700; }
+  hr{ border:0; border-top:1px solid var(--line); margin:22px 0; }
+
+  .section{ break-before:page; }
+  .section-flow{ } /* keeps content together where possible */
+
+  /* ---------- BLOCKQUOTE / SCRIPTS ---------- */
+  blockquote, .script{
+    background:var(--tint); border:1px solid var(--tint-line); border-left:4px solid var(--amber);
+    border-radius:8px; padding:12px 16px; margin:0 0 14px; color:#3f3320;
+  }
+  blockquote p, .script p{ margin:0 0 8px; }
+  blockquote p:last-child, .script p:last-child{ margin:0; }
+
+  /* ---------- TABLES ---------- */
+  table{ width:100%; border-collapse:collapse; margin:6px 0 16px; font-size:9.7pt; break-inside:auto; }
+  th{
+    background:var(--navy); color:#fff; font-weight:600; text-align:left;
+    padding:8px 10px; border:1px solid var(--navy); font-size:9.3pt;
+  }
+  td{ padding:9px 10px; border:1px solid var(--line-strong); vertical-align:top; }
+  tr{ break-inside:avoid; }
+  td.fill{ background:#fcfcfd; }
+  .num th:last-child, .num td:last-child{ text-align:right; }
+
+  /* ---------- CALLOUTS ---------- */
+  .rule{
+    background:#fff7e8; border:1px dashed var(--amber-deep); border-radius:8px;
+    padding:10px 14px; margin:0 0 14px; font-size:10pt;
+  }
+  .rule b{ color:var(--amber-deep); }
+  .decision{
+    background:#f9fafb; border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:0 0 14px;
+  }
+
+  /* ---------- QUICK CARD ---------- */
+  .quickcard{
+    border:2px solid var(--navy); border-radius:14px; padding:20px 22px; margin:8px 0 4px;
+    background:#fff;
+  }
+  .quickcard h2{ font-weight:900; font-size:18pt; margin:0 0 4px; color:var(--navy); }
+  .quickcard .belief{
+    margin-top:14px; background:var(--navy); color:#fff; border-radius:10px; padding:12px 16px; font-size:10.5pt;
+  }
+  .quickcard .belief b{ color:var(--amber); }
+
+  .roars-table td:first-child{ font-weight:900; color:var(--amber-deep); font-size:13pt; text-align:center; width:34px; }
+
+  .footer-cta{
+    break-before:page; background:var(--navy); color:#fff; border-radius:14px; padding:26px 26px;
+  }
+  .footer-cta h2{ color:#fff; font-weight:900; font-size:20pt; margin:0 0 10px; }
+  .footer-cta .step{ display:flex; gap:12px; margin:0 0 12px; align-items:flex-start; }
+  .footer-cta .n{ color:var(--navy); background:var(--amber); font-weight:900; width:24px; height:24px; border-radius:50%; flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; font-size:10pt; }
+  .footer-cta a{ color:var(--amber); }
+  .footer-cta .promise{ border-left:4px solid var(--amber); padding-left:14px; margin-top:18px; color:#e5e7eb; }
+  .copyright{ color:var(--muted); font-size:8.5pt; margin-top:18px; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<section class="cover">
+  <div class="top">
+    <span class="wordmark"><b>R</b>oa<b>R</b></span>
+  </div>
+  <div>
+    <p class="kicker">Companion Toolkit</p>
+    <h1>Rumblings of<br>a Recruiter</h1>
+    <p class="sub">A practical operating system for becoming known, findable, and steady inside the hiring machine.</p>
+    <div class="shift">Stop treating the job search as a submission problem. Treat it as a visibility, trust, and timing problem.</div>
+  </div>
+  <div class="meta">
+    <strong>Sajithkumar Swaminathan</strong> — recruiter, career strategist &amp; author<br>
+    Version 1.1 · 2026 · sajithkumarswaminathan.com
+  </div>
+</section>
+
+<!-- ===================== HOW TO USE ===================== -->
+<section>
+  <h2 class="part"><span class="badge" style="background:var(--navy);color:var(--amber)">★</span>Start here</h2>
+  <p class="part-tag">How to use this toolkit</p>
+  <p class="lead">This toolkit turns the ideas in <em>Rumblings of a Recruiter</em> into repeatable action. The book names what the hiring machine does. This toolkit helps you decide what to do next.</p>
+  <ul>
+    <li><strong>Who it's for:</strong> anyone running a real job search who is tired of applying into silence.</li>
+    <li><strong>What it is:</strong> a set of audits, scripts, and scorecards you fill in — not an article to skim.</li>
+    <li><strong>Time:</strong> ~20 minutes to read, then 30–45 minutes per week to run.</li>
+    <li><strong>How to use it:</strong> print it and write by hand, or fill the tables digitally. Both work.</li>
+    <li><strong>The only rule that matters:</strong> don't try to use everything. Pick <strong>one tool</strong> this week and run it. One tool used beats ten tools admired.</li>
+  </ul>
+  <div class="rule"><b>New to the search?</b> Start with the <em>Candidate Signal Statement</em> and the <em>20-Person Visibility Map</em>. &nbsp;<b>Deep in a long search and drained?</b> Start with the <em>Search Energy Budget</em> and <em>Stop-Time Rule</em>.</div>
+
+  <h3>RoaR vs ROARS — read this once</h3>
+  <p><strong>RoaR</strong> is the brand and the book: <em>Rumblings of a Recruiter</em>. <strong>ROARS</strong> is the five-step method inside this toolkit.</p>
+  <table class="roars-table">
+    <thead><tr><th style="width:34px">·</th><th>Step</th><th>The question it answers</th></tr></thead>
+    <tbody>
+      <tr><td>R</td><td><strong>Read the Machine</strong></td><td>What is actually happening before I blame myself?</td></tr>
+      <tr><td>O</td><td><strong>Own Your Signal</strong></td><td>What do I want to be known for, and where does it show up?</td></tr>
+      <tr><td>A</td><td><strong>Activate Relationships</strong></td><td>Who do I talk to <em>before</em> the role is crowded?</td></tr>
+      <tr><td>R</td><td><strong>Reduce the Damage</strong></td><td>How do I protect my energy, identity, and judgment?</td></tr>
+      <tr><td>S</td><td><strong>Ship the Search</strong></td><td>How do I track, measure, and adjust weekly?</td></tr>
+    </tbody>
+  </table>
+
+  <div class="quickcard">
+    <h2>The RoaR Quick Card</h2>
+    <p style="color:var(--muted);margin:0 0 12px">One page. Tape it above your desk. If you do nothing else, do these five things.</p>
+    <table>
+      <thead><tr><th>If you're stuck on…</th><th>Run this tool</th><th>The move</th></tr></thead>
+      <tbody>
+        <tr><td>Wasting energy on dead roles</td><td><strong>Ghost Posting Check</strong></td><td>Three+ red flags → no effort without a human conversation first.</td></tr>
+        <tr><td>Sounding generic</td><td><strong>Candidate Signal Statement</strong></td><td>One sentence: who you help, with what, when you're most valuable.</td></tr>
+        <tr><td>Applying into silence</td><td><strong>20-Person Visibility Map</strong></td><td>Be known by the right 20, not seen by everyone.</td></tr>
+        <tr><td>Burning out</td><td><strong>Search Energy Budget</strong></td><td>Cap draining activity <em>before</em> it caps you.</td></tr>
+        <tr><td>Feeling busy but not moving</td><td><strong>Weekly Search Dashboard</strong></td><td>Track signal, not effort. Adjust every Friday.</td></tr>
+      </tbody>
+    </table>
+    <div class="belief"><b>The one belief to hold:</b> You can't control the machine. You <b>can</b> control your signal, your relationships, your proof, your pace, and your recovery.</div>
+  </div>
+</section>
+
+<!-- ===================== PART 1 ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge">R</span>Read the Machine</h2>
+  <p class="part-tag">Understand what is happening before blaming yourself</p>
+
+  <h3>Hiring Reality Audit</h3>
+  <p>Use this when a role looks attractive but unclear.</p>
+  <table>
+    <thead><tr><th>Question</th><th style="width:38%">Answer</th></tr></thead>
+    <tbody>
+      <tr><td>Is this role newly posted, reposted, or evergreen?</td><td class="fill"></td></tr>
+      <tr><td>Does the job description name real work or mostly traits?</td><td class="fill"></td></tr>
+      <tr><td>Does the company appear to be actively hiring in this function?</td><td class="fill"></td></tr>
+      <tr><td>Can I identify the likely hiring manager or team lead?</td><td class="fill"></td></tr>
+      <tr><td>Do I know anyone one or two steps away from the team?</td><td class="fill"></td></tr>
+      <tr><td>Is there salary transparency or at least a likely range?</td><td class="fill"></td></tr>
+      <tr><td>Does the posting look like a real opening, a pipeline role, or a compliance posting?</td><td class="fill"></td></tr>
+      <tr><td>What evidence do I have, not just hope?</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <div class="decision"><strong>Decision — choose one:</strong>
+    <ul style="margin-top:6px">
+      <li><strong>Apply only:</strong> low interest, low access, acceptable loss.</li>
+      <li><strong>Apply plus contact:</strong> medium interest, possible human path.</li>
+      <li><strong>Human first:</strong> high interest, identifiable team, relationship path exists.</li>
+      <li><strong>Skip:</strong> weak signal, poor fit, bad process, or emotional cost too high.</li>
+    </ul>
+  </div>
+
+  <h3>Ghost Posting Check</h3>
+  <p>Before spending real energy, check for these signals.</p>
+  <table>
+    <thead><tr><th>Signal</th><th style="width:22%">Yes / No</th></tr></thead>
+    <tbody>
+      <tr><td>The role has been open more than 45 days.</td><td class="fill"></td></tr>
+      <tr><td>Similar roles have been reposted repeatedly.</td><td class="fill"></td></tr>
+      <tr><td>The description is generic and not tied to a team or project.</td><td class="fill"></td></tr>
+      <tr><td>The company recently announced layoffs, freezes, or restructuring.</td><td class="fill"></td></tr>
+      <tr><td>The role appears across many locations without clear ownership.</td><td class="fill"></td></tr>
+      <tr><td>Recruiters are advertising the role but cannot explain the work.</td><td class="fill"></td></tr>
+      <tr><td>Internal employees are not engaging with the posting.</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <div class="rule"><b>Scoring:</b> If three or more are <em>Yes</em>, treat the role as uncertain. Do not over-invest without a human conversation first.</div>
+</section>
+
+<!-- ===================== PART 2 ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge">O</span>Own Your Signal</h2>
+  <p class="part-tag">Clarify what you want to be known for, and where it appears</p>
+
+  <h3>Candidate Signal Statement</h3>
+  <p>Fill this in before rewriting resumes, LinkedIn profiles, or outreach messages.</p>
+  <blockquote>I help <strong>[type of company/team]</strong> solve <strong>[specific problem]</strong> by using <strong>[your strongest capability]</strong>, especially when <strong>[situation where you are valuable]</strong>.</blockquote>
+  <p><strong>Examples:</strong></p>
+  <ul>
+    <li>I help early-stage SaaS teams clean up messy revenue operations by building simple reporting systems, especially when founders are still making decisions from spreadsheets.</li>
+    <li>I help manufacturing companies modernize hiring by improving recruiter workflows, especially when applicant volume is high and hiring managers are overloaded.</li>
+  </ul>
+  <table><thead><tr><th>Your draft</th></tr></thead><tbody><tr><td class="fill" style="height:46px"></td></tr></tbody></table>
+
+  <h3>The Three-Proof Inventory</h3>
+  <p>For every target role, collect three proofs.</p>
+  <table>
+    <thead><tr><th style="width:42%">Proof Type</th><th>Your Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>A measurable result</td><td class="fill"></td></tr>
+      <tr><td>A messy problem you handled</td><td class="fill"></td></tr>
+      <tr><td>A human or cross-functional challenge you navigated</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <p>If you cannot fill all three, the resume will sound thin and the interview will drift into claims instead of evidence.</p>
+
+  <h3>Resume Signal Check</h3>
+  <p>Your resume should pass three readers.</p>
+  <table>
+    <thead><tr><th>Reader</th><th>What They Need</th><th style="width:14%">Pass?</th></tr></thead>
+    <tbody>
+      <tr><td>Parser</td><td>Clear titles, dates, keywords, simple formatting</td><td class="fill"></td></tr>
+      <tr><td>Recruiter</td><td>Fast match to role, credible scope, no confusion</td><td class="fill"></td></tr>
+      <tr><td>Hiring manager</td><td>Evidence that you can do the actual work</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <div class="rule"><b>Rule:</b> The top half of the resume should match the role. The bottom half should still sound like a person.</div>
+
+  <h3>LinkedIn Findability Check</h3>
+  <table>
+    <thead><tr><th>Item</th><th style="width:14%">Done</th></tr></thead>
+    <tbody>
+      <tr><td>Headline says what you do, not just your job title.</td><td class="fill"></td></tr>
+      <tr><td>About section names your problem space.</td><td class="fill"></td></tr>
+      <tr><td>Featured section includes proof: writing, project, portfolio, case study, talk, or artifact.</td><td class="fill"></td></tr>
+      <tr><td>Experience bullets show outcomes, not only responsibilities.</td><td class="fill"></td></tr>
+      <tr><td>Skills match the language of target roles.</td><td class="fill"></td></tr>
+      <tr><td>Recent activity makes you visible to the right market.</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== PART 3 ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge">A</span>Activate Relationships</h2>
+  <p class="part-tag">Build conversations before roles open, not after the posting is crowded</p>
+
+  <h3>Target Company List</h3>
+  <p>Build a focused list before applying widely.</p>
+  <table>
+    <thead><tr><th>Company</th><th>Why this company?</th><th>Target function</th><th>Trigger event</th><th>Possible contact</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill">H / M / L</td></tr>
+      <tr><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill">H / M / L</td></tr>
+      <tr><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill">H / M / L</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:9.5pt;color:var(--muted)">Trigger events include funding, expansion, leadership change, new product, new geography, regulatory change, acquisition, layoffs at competitors, or repeated postings.</p>
+
+  <h3>The 20-Person Visibility Map</h3>
+  <p>You do not need to know everyone. You need to be known by the right few.</p>
+  <table>
+    <thead><tr><th style="width:42%">Category</th><th>Names</th></tr></thead>
+    <tbody>
+      <tr><td>5 people doing the job I want</td><td class="fill"></td></tr>
+      <tr><td>5 hiring managers or team leads</td><td class="fill"></td></tr>
+      <tr><td>5 connectors, recruiters, or community people</td><td class="fill"></td></tr>
+      <tr><td>5 peers who share market intelligence</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <p>Your weekly goal is not to "network." It is to create useful contact with this map.</p>
+
+  <h3>Warm Outreach Script</h3>
+  <div class="script">
+    <p><strong>Subject:</strong> Quick question about your work at <strong>[Company]</strong></p>
+    <p>Hi <strong>[Name]</strong>,</p>
+    <p>I came across your work on <strong>[specific project/team/post/company move]</strong> and wanted to ask a practical question.</p>
+    <p>I am exploring roles where I can help with <strong>[problem space]</strong>. From the outside, it looks like your team may be dealing with <strong>[specific challenge]</strong>.</p>
+    <p>Would you be open to a 15-minute conversation? I am not asking you to refer me. I am trying to understand the work more clearly before I decide where to focus.</p>
+    <p>Thanks,<br><strong>[Your Name]</strong></p>
+  </div>
+
+  <h3>Recruiter Clarity Script</h3>
+  <p>Use this early, before investing heavily.</p>
+  <blockquote>
+    <p>Thanks for reaching out. Before we go too far, can I ask three quick questions?</p>
+    <p>1. Is this role approved and actively moving, or is it more exploratory?<br>
+    2. What problem is the hiring manager trying to solve in the first six months?<br>
+    3. What range has been budgeted for the role?</p>
+  </blockquote>
+  <p>If the recruiter cannot answer any of these, proceed carefully.</p>
+
+  <h3>Hiring Manager Conversation Questions</h3>
+  <ul>
+    <li>What has made this role hard to fill or hard to define?</li>
+    <li>What would the person need to fix, build, or stabilize in the first 90 days?</li>
+    <li>What would make you say, six months from now, that this was clearly the right hire?</li>
+    <li>What is not written in the job description that matters?</li>
+    <li>Where have strong candidates missed the mark so far?</li>
+  </ul>
+</section>
+
+<!-- ===================== PART 4 ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge">R</span>Reduce the Damage</h2>
+  <p class="part-tag">Protect energy, identity, and decision quality during the search</p>
+
+  <h3>Search Energy Budget</h3>
+  <p>A long search is not only a logistics problem. It is an identity and energy problem.</p>
+  <table class="num">
+    <thead><tr><th>Activity</th><th style="width:22%">Weekly limit</th><th style="width:22%">Actual</th></tr></thead>
+    <tbody>
+      <tr><td>Cold applications</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Tailored applications</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Human outreach</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Networking calls</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Interview preparation</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>LinkedIn scrolling</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Recovery time</td><td class="fill"></td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <div class="rule"><b>Rule:</b> If an activity repeatedly drains you and produces no signal, reduce it before it reduces you.</div>
+
+  <h3>Rejection Debrief</h3>
+  <p>Do this once, then move on.</p>
+  <table>
+    <thead><tr><th>Question</th><th style="width:38%">Answer</th></tr></thead>
+    <tbody>
+      <tr><td>Did I have enough information to judge fit?</td><td class="fill"></td></tr>
+      <tr><td>Did I reach a human or only a portal?</td><td class="fill"></td></tr>
+      <tr><td>Did I lose because of fit, timing, process, compensation, or unknown reasons?</td><td class="fill"></td></tr>
+      <tr><td>Is there one useful adjustment to make?</td><td class="fill"></td></tr>
+      <tr><td>What should I not over-learn from this?</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <div class="rule"><b>Anti-spiral rule:</b> Do not turn a silent rejection into a full theory of your worth.</div>
+
+  <h3>Stop-Time Rule</h3>
+  <p>Before checking email, job boards, LinkedIn, or application portals, decide when you will stop.</p>
+  <table>
+    <thead><tr><th>Activity</th><th style="width:16%">Start</th><th style="width:16%">Stop</th><th>Why I am doing this</th></tr></thead>
+    <tbody>
+      <tr><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <p>If you cannot name why you are checking, you are probably soothing anxiety, not advancing the search.</p>
+</section>
+
+<!-- ===================== PART 5 ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge">S</span>Ship the Search</h2>
+  <p class="part-tag">Track actions, measure conversion, adjust weekly, and keep moving</p>
+
+  <h3>Weekly Search Dashboard</h3>
+  <p>Track the search as a system.</p>
+  <table class="num">
+    <thead><tr><th>Metric</th><th style="width:16%">This week</th><th style="width:16%">Last week</th><th style="width:26%">Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Target companies added</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Human messages sent</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Conversations booked</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Referrals or warm intros</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Applications submitted</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Interviews booked</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Follow-ups sent</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Offers / late-stage processes</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Energy level, 1–10</td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <div class="decision"><strong>What to look for:</strong>
+    <ul style="margin-top:6px">
+      <li>Applications high, conversations low → shift toward people.</li>
+      <li>Conversations high, interviews low → sharpen your signal.</li>
+      <li>Interviews high, offers low → improve proof and closing.</li>
+      <li>Energy falling for two weeks → reduce volume and increase recovery.</li>
+    </ul>
+  </div>
+
+  <h3>Application Triage</h3>
+  <p>Use this before applying.</p>
+  <table class="num">
+    <thead><tr><th>Factor</th><th style="width:18%">Score 0–2</th></tr></thead>
+    <tbody>
+      <tr><td>I understand the actual work.</td><td class="fill"></td></tr>
+      <tr><td>I can identify the hiring manager or team.</td><td class="fill"></td></tr>
+      <tr><td>I have a credible proof story for the role.</td><td class="fill"></td></tr>
+      <tr><td>I can reach someone connected to the company.</td><td class="fill"></td></tr>
+      <tr><td>The posting appears real and current.</td><td class="fill"></td></tr>
+      <tr><td>The compensation is likely workable.</td><td class="fill"></td></tr>
+      <tr><td>The role is worth emotional investment.</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+  <div class="decision"><strong>Decision:</strong>
+    <ul style="margin-top:6px">
+      <li><strong>10–14:</strong> Apply and pursue a human path.</li>
+      <li><strong>6–9:</strong> Apply only if effort is low or interest is high.</li>
+      <li><strong>0–5:</strong> Skip unless there is a strong hidden reason.</li>
+    </ul>
+  </div>
+
+  <h3>Weekly Review — answer every Friday</h3>
+  <ol>
+    <li>What created actual signal this week?</li>
+    <li>What only created the feeling of productivity?</li>
+    <li>Which company or person should I go deeper with?</li>
+    <li>What am I avoiding because it feels exposed?</li>
+    <li>What will I stop doing next week?</li>
+    <li>What is the smallest action that would make me more findable?</li>
+  </ol>
+</section>
+
+<!-- ===================== INTERVIEW ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge" style="background:var(--navy);color:var(--amber)">▸</span>Interview Toolkit</h2>
+  <p class="part-tag">Turn experience into proof</p>
+
+  <h3>The Work-Proof Answer</h3>
+  <p>Use this structure instead of generic STAR answers.</p>
+  <table>
+    <thead><tr><th style="width:22%">Part</th><th>Prompt</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Context</strong></td><td>What was messy, unclear, or at stake?</td></tr>
+      <tr><td><strong>Judgment</strong></td><td>What did you notice that others missed?</td></tr>
+      <tr><td><strong>Action</strong></td><td>What did you actually do?</td></tr>
+      <tr><td><strong>Tradeoff</strong></td><td>What did you choose not to do?</td></tr>
+      <tr><td><strong>Result</strong></td><td>What changed because of your work?</td></tr>
+      <tr><td><strong>Relevance</strong></td><td>Why does this matter for this role?</td></tr>
+    </tbody>
+  </table>
+
+  <h3>90-Day Value Map</h3>
+  <p>Bring this thinking into final interviews.</p>
+  <table>
+    <thead><tr><th>Period</th><th>Focus</th><th>Evidence to gather</th><th>Likely contribution</th></tr></thead>
+    <tbody>
+      <tr><td>Days 1–30</td><td>Learn the system</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Days 31–60</td><td>Fix visible friction</td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td>Days 61–90</td><td>Build repeatable value</td><td class="fill"></td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Questions That Signal Seniority</h3>
+  <ul>
+    <li>What decision will this hire make easier for you?</li>
+    <li>What is the cost of not solving this problem in the next six months?</li>
+    <li>Where does this role have influence, and where does it only have responsibility?</li>
+    <li>What would make someone technically qualified but still wrong for this role?</li>
+    <li>What should I understand about the team before deciding whether I can do my best work here?</li>
+  </ul>
+</section>
+
+<!-- ===================== NEGOTIATION ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge" style="background:var(--navy);color:var(--amber)">▸</span>Negotiation Toolkit</h2>
+  <p class="part-tag">Get to a clear, confident counter</p>
+
+  <h3>Offer Readiness Checklist</h3>
+  <table>
+    <thead><tr><th>Item</th><th style="width:14%">Done</th></tr></thead>
+    <tbody>
+      <tr><td>I know the salary range or likely band.</td><td class="fill"></td></tr>
+      <tr><td>I understand bonus, equity, commission, or variable pay.</td><td class="fill"></td></tr>
+      <tr><td>I understand benefits, vacation, remote policy, and work hours.</td><td class="fill"></td></tr>
+      <tr><td>I know the start date expectation.</td><td class="fill"></td></tr>
+      <tr><td>I have the offer in writing before resigning.</td><td class="fill"></td></tr>
+      <tr><td>I have identified what matters most besides salary.</td><td class="fill"></td></tr>
+      <tr><td>I have prepared one clear counter, not a scattered list.</td><td class="fill"></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Compensation Conversation Script</h3>
+  <blockquote>I am excited about the role and the problems you are trying to solve. Based on the scope we have discussed and the market for similar roles, I was expecting something closer to <strong>[range]</strong>. Is there flexibility to get nearer to that?</blockquote>
+  <p>If they say no:</p>
+  <blockquote>I understand. Are there other parts of the package we can revisit, such as signing bonus, review timing, vacation, remote flexibility, or professional development?</blockquote>
+</section>
+
+<!-- ===================== 30-DAY SPRINT ===================== -->
+<section class="section">
+  <h2 class="part"><span class="badge" style="background:var(--navy);color:var(--amber)">30</span>The RoaR 30-Day Search Sprint</h2>
+  <p class="part-tag">One month, four moves</p>
+  <table>
+    <thead><tr><th style="width:24%">Week</th><th>Do this</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Week 1 — Clarity</strong></td><td>Write your candidate signal statement · build a 25-company target list · clean your resume for parser, recruiter, and hiring manager · update LinkedIn for findability · choose 10 people for your visibility map.</td></tr>
+      <tr><td><strong>Week 2 — Conversations</strong></td><td>Send 10 specific outreach messages · book 3 informational conversations · ask 2 recruiters the clarity questions · publish or share one useful work-related insight.</td></tr>
+      <tr><td><strong>Week 3 — Proof</strong></td><td>Build three work-proof stories · prepare a 90-day value map for one target role · apply to no more than 10 roles, all triaged · ask for one warm introduction.</td></tr>
+      <tr><td><strong>Week 4 — Review</strong></td><td>Review conversion data · cut low-yield activity · deepen two promising relationships · refresh your target list · decide the next 30-day experiment.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reader Promise</h3>
+  <p>The goal of this toolkit is not to make the search painless. It is to make it less blind.</p>
+  <p>You cannot control whether a company is serious, whether a recruiter is overloaded, whether a hiring manager changes their mind, or whether a role disappears behind a budget conversation you will never hear.</p>
+  <p>You can control your signal, your relationships, your proof, your pace, and your recovery. <strong>That is the work.</strong></p>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="footer-cta">
+  <h2>Before you close this</h2>
+  <p>You don't need all of it. Pick <strong>one tool</strong> — the <em>Application Triage</em>, or the <em>20-Person Visibility Map</em> — and run it this week. One tool used beats ten tools admired.</p>
+  <p style="margin-top:14px">If it helped, three things make it travel further:</p>
+  <div class="step"><span class="n">1</span><div><strong>Run one tool and tell me which one.</strong> I read the replies, and your win helps the next person searching in the dark.</div></div>
+  <div class="step"><span class="n">2</span><div><strong>Found this from a post? Comment “RoaR”</strong> and I'll send the toolkit to anyone who asks.</div></div>
+  <div class="step"><span class="n">3</span><div><strong>Want the full system</strong> — the stories, the hiring-machine patterns, and the <em>why</em> behind every move here? It's in the book, <em>Rumblings of a Recruiter</em>.</div></div>
+  <div class="promise">→ <a href="https://www.sajithkumarswaminathan.com">sajithkumarswaminathan.com</a> · mail@sajithkumarswaminathan.com</div>
+  <div class="copyright">© 2026 Sajithkumar Swaminathan. Free for personal use. Not for redistribution or resale.</div>
+</section>
+
+</body>
+</html>
